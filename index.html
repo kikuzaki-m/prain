@@ -1,0 +1,242 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Prain</title>
+<style>
+body{
+	margin: 0;
+	overflow: hidden;
+}
+</style>
+</head>
+
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.min.js"></script>
+  
+<script>
+  let color = ["#f1fcfc","#2a7886","#4a69bb","#633a82","#000000"];
+  let rain = [];
+  let T = [];
+  let A = [];
+  let Data;
+  let area;
+  var a;
+  var clr;
+  
+/*  データ成形  */
+function GotPlanes(p) {
+  Data = p;
+  //console.log(Data);
+  var arrTime = "odpt:actualArrivalTime";
+  var name = "odpt:originAirport"; 
+  var len = Object.keys(Data).length;
+  console.log(len);
+
+  for (let i = 0; i < len; i++) {
+      // 到着時間と空港名を配列に入れる
+      const o = Data[i];
+      var airport = o[name].substring(o[name].length - 3, o[name].length);
+      T[i] = o[arrTime];
+      A[i] = airport;
+    }
+  console.log(T,A);
+}
+
+/*  データ読み込み  */
+function preload() {
+    let url = 'https://api-tokyochallenge.odpt.org/api/v4/odpt:FlightInformationArrival?odpt:operator=odpt.Operator:NAA&acl:consumerKey=ASyW6doJD0sDaR7IqGns1aTtT8DkSN0VE_IuVwHa5nU';
+  
+    loadJSON(url, GotPlanes);
+    //area = loadJSON("area.json");
+}
+ 
+/*  キャンバス&雨粒作成  */
+function setup(){
+	createCanvas(windowWidth, windowHeight);
+	
+	for (i = 0; i < T.length; i++) {
+		if (T[i] != undefined){
+			switch (A[i]) {
+				case "ICN" :
+        case "GMP" :
+        case "CJU" :
+        case "PUS" :
+        case "TPE" :
+        case "KHH" :
+        case "HKG" :
+        case "MFM" :
+        case "PEK" :
+        case "PVG" :
+        case "DLC" :
+        case "TSN" :
+        case "TAO" :
+        case "XIY" :
+        case "CAN" :
+        case "HGH" :
+        case "XMN" :
+        case "KMG" :
+        case "WUH" :
+        case "CKG" :
+        case "HAK" :
+        case "SHE" :
+        case "CGQ" :
+        case "CTU" :
+        case "SZX" :
+        case "MNL" :
+        case "CEB" :
+        case "BKK" :
+        case "CNX" :
+        case "HKT" :
+        case "HAN" :
+        case "SGN" :
+        case "KUL" :
+        case "BKI" :
+        case "SIN" :
+        case "CGK" :
+        case "DPS" :
+        case "CCU" :
+        case "DEL" :
+        case "BOM" :
+        case "CMB" : 
+					clr = color[0];
+					break;
+				case "ATL" :
+        case "SJC" :
+        case "SFO" :
+        case "SEA" :
+        case "ORD" :
+        case "DFW" :
+        case "DTW" :
+        case "JFK" :
+        case "EWR" :
+        case "LGA" :
+        case "IAH" :
+        case "PDX" :
+        case "MSP" :
+        case "LAS" :
+        case "LAX" :
+        case "IAD" :
+        case "DCA" :
+        case "HNL" :
+        case "OGG" :
+        case "JHM" :
+        case "KOA" :
+        case "ITO" :
+        case "LIH" :
+        case "MKK" :
+        case "LNY" :
+        case "YTO" :
+        case "YVR" :
+        case "MEX" :
+        case "GIG" :
+        case "GRU" : 
+					clr = color[1];
+					break;
+				case "LHR" :
+        case "LGW" :
+        case "STN" :
+        case "LCY" :
+        case "LTN" :
+        case "MAN" :
+        case "MXP" :
+        case "LIN" :
+        case "FCO" :
+        case "ZRH" :
+        case "GVA" :
+        case "BCN" :
+        case "MAD" :
+        case "TXL" :
+        case "THF" :
+        case "SXF" :
+        case "FRA" :
+        case "MUC" :
+        case "CDG" :
+        case "ORY" :
+        case "NCE" :
+        case "MRS" :
+					clr = color[2];
+					break;
+				case "GUM" :
+        case "SPN" :
+        case "CNS" :
+        case "SYD" :
+        case "PER" :
+        case "BNE" :
+        case "MEL" :
+        case "CHC" :
+        case "AKL" :
+					clr = color[3];
+					break;
+				default :
+					clr = color[4];
+			}
+			rain.push(new Rain(random(500,950), random(100,windowHeight), clr));
+		}
+	}
+  console.log(rain.length);
+}
+
+/*  描画  */
+function draw() {
+  background(0);
+  
+  for (i = 0; i < rain.length; i++) {
+    rain[i].dropRain();
+    rain[i].splash();
+  }
+}
+
+/*  雨粒プロパティ  */
+function Rain(x, y, c) {
+  //var n = int(random(color.length));
+  this.x = x;
+  this.y = y; 
+  this.z = random(10,80);
+  this.length = map(this.z, 10, 80, 50, 80);
+  this.yspeed = map(this.z, 10, 80, 4, 12);
+  this.d = map(this.z, 10, 80, windowHeight-100, windowHeight-30);
+  this.r = 0;
+  this.opacity = 300;
+  this.color = c;
+
+  // 雨粒
+  this.dropRain = function() {   
+    stroke(this.color);
+    strokeWeight(2);
+    strokeCap(SQUARE);
+    line(this.x, this.y, this.x, this.y+this.length);
+    this.y = this.y + this.yspeed;
+    
+    if (this.y > windowHeight-150) {
+      this.length = this.length - 3;
+    }
+    if (this.length < 0) {
+      this.length = 0;
+    }
+  }
+  // 波紋
+  this.splash = function() {
+    strokeWeight(2);
+    stroke(this.color);
+    noFill();
+    if (this.y > windowHeight-100) {
+      rectMode(CENTER);
+      rect(this.x, this.d, this.r * 2, this.r / 2);
+      this.r++;
+      this.opacity = this.opacity - 10;
+
+      // ループ
+      if (this.opacity < 0) {
+        this.x = random(550,950);
+        this.y = 100;
+        this.length = random(10,80);
+        this.r = 0;
+        this.opacity = 300;
+      }
+    }
+  }
+}
+</script>
+</body>
+</html>
